@@ -14,6 +14,7 @@ buildscript {
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.3"
+    flavorDimensions "default"
 
     defaultConfig {
         applicationId "com.udacity.gradle.builditbigger"
@@ -22,7 +23,6 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -30,6 +30,20 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors{
+        free {
+            applicationId 'com.udacity.android.gradleproject.free'
+            versionName "1.0-free"
+            buildConfigField "boolean", "PAID_VERSION", "false"
+        }
+
+        paid {
+            applicationId 'com.udacity.android.gradleproject.paid'
+            versionName "1.0-paid"
+            buildConfigField "boolean", "PAID_VERSION", "true"
         }
     }
 }
