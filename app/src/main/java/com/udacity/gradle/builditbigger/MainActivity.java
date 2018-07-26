@@ -8,9 +8,12 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.popular.android.android_lib.JokeDetail;
 import com.popular.android.java_lib.JokeGenerator;
+
+import java.util.concurrent.ExecutionException;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -38,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -46,12 +48,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void tellJoke(View view) {
-        jokes = new JokeGenerator();
-        String joke = jokes.getJoke();
+    public void tellJoke(View view) throws ExecutionException, InterruptedException {
+        String joke = new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "")).get();
 
-        new EndpointsAsyncTask().execute(new Pair<Context, String>(this, ""));
-        //Toast.makeText(this, joke, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, joke, Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(this, JokeDetail.class);
         intent.putExtra("JOKE", joke);
