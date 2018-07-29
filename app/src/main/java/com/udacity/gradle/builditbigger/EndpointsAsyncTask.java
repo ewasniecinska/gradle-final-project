@@ -1,16 +1,14 @@
 package com.udacity.gradle.builditbigger;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.Pair;
-import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.udacity.gradle.builditbigger.backend.myApi.MyApi;
+import com.udacity.gradle.builditbigger.backend.myApi.model.MyBean;
 
 import java.io.IOException;
 
@@ -18,12 +16,15 @@ import java.io.IOException;
  * Created by ewasniecinska on 24.07.2018.
  */
 
-public class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
+public class EndpointsAsyncTask extends AsyncTask<EndpointsAsyncTask.Callback, Void, MyBean>  {
     private static MyApi myApiService = null;
-    private Context context;
+    private Callback callback;
 
     @Override
-    protected String doInBackground(Pair<Context, String>... params) {
+    protected MyBean doInBackground(Callback... callbacks) {
+
+        callback = callbacks[0];
+
         if(myApiService == null) {  // Only do this once
             MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
                     new AndroidJsonFactory(), null)
@@ -42,20 +43,24 @@ public class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, S
             myApiService = builder.build();
         }
 
-        context = params[0].first;
 
         try {
-            return myApiService.getRandomJoke().execute().getData();
+            return myApiService.getRandomJoke().execute();
         } catch (IOException e) {
-            return e.getMessage();
+            return null;
         }
     }
 
     @Override
-    protected void onPostExecute(String result) {
-        Log.d("RESULT", result);
-        Toast.makeText(context, result, Toast.LENGTH_LONG);
+    protected void onPostExecute(MyBean joke) {
+        if (callback != null) {
+            callback.onJokeReceived(joke);
+            Log.d("RESULT", joke.getData());
+        }
     }
 
+    public interface Callback {
+        void onJokeReceived(MyBean joke);
+    }
 
 }
